@@ -1,25 +1,18 @@
-const fs = require("fs");
+const fetch = global.fetch;
 
-async function loadSecrets() {
+async function getSecret(key) {
 
-    const scope = process.env.SECRET_SCOPE;
-    const token = process.env.DATABRICKS_PAT;
-    const host = process.env.DATABRICKS_HOST;
+    const response = await fetch(
+        `${process.env.DATABRICKS_HOST}/api/2.0/secrets/list?scope=${process.env.SECRET_SCOPE}`,
+        {
+            headers: {
+                Authorization:
+                    `Bearer ${process.env.DATABRICKS_PAT}`
+            }
+        }
+    );
 
-    const keys = [
-        "CLIENT_ID",
-        "TEST_SECRET",
-        "COSMOS_AUTH_KEY",
-        "AZURE_CLIENT_SECRET"
-    ];
-
-    for (const key of keys) {
-
-        // fetch secret from Databricks Secret Scope
-        const value = await getSecretValue(key);
-
-        process.env[key] = value;
-    }
+    return response;
 }
 
-module.exports = loadSecrets;
+module.exports = getSecret;
