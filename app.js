@@ -24,7 +24,7 @@ app.get("/apitest", async (req, res) => {
     try {
 
         const host = process.env.DATABRICKS_HOST;
-        const token = process.env.DATABRICKS_CLIENT_SECRET;
+        const token = process.env.DATABRICKS_PAT;
 
         if (!host) {
             return res.json({
