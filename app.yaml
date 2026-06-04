@@ -14,3 +14,6 @@ env:
 
   - name: DATABRICKS_PATH
     value: "${DATABRICKS_PATH}"
+    
+  - name: DATABRICKS_PAT
+    value: "dapi91c7e7ca702f7358c908deb98f6656ac"
