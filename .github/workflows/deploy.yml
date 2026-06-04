@@ -1,0 +1,37 @@
+name: Deploy Databricks App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      CLIENT_ID: ${{ secrets.CLIENT_ID }}
+      TEST_SECRET: ${{ secrets.TEST_SECRET }}
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_PATH: ${{ secrets.DATABRICKS_PATH }}
+
+      DATABRICKS_AUTH_TYPE: azure-client-secret
+      ARM_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Show generated values
+        run: |
+          echo "CLIENT_ID length: ${#CLIENT_ID}"
+          echo "TEST_SECRET length: ${#TEST_SECRET}"
+          echo "DATABRICKS_HOST length: ${#DATABRICKS_HOST}"
+          echo "DATABRICKS_PATH length: ${#DATABRICKS_PATH}"
+
+      - name: Deploy App
+        run: |
+          databricks apps deploy --auto-approve --force-lock
