@@ -1,0 +1,8 @@
+bundle:
+  name: secret-poc
+
+resources:
+  apps:
+    secret-poc:
+      name: secret-poc
+      source_code_path: .
