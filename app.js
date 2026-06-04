@@ -2,17 +2,41 @@ const express = require("express");
 
 const app = express();
 
-app.get("/", (req, res) => {
-  res.json({
-    CLIENT_ID: process.env.CLIENT_ID || "NOT_FOUND",
-    TEST_SECRET: process.env.TEST_SECRET || "NOT_FOUND",
-    DATABRICKS_HOST: process.env.DATABRICKS_HOST || "NOT_FOUND",
-    DATABRICKS_PATH: process.env.DATABRICKS_PATH || "NOT_FOUND"
-  });
+app.get("/", async (req, res) => {
+
+    try {
+
+        const response = await fetch(
+            `https://${process.env.DATABRICKS_HOST}/api/2.0/secrets/get`,
+            {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${process.env.DATABRICKS_CLIENT_SECRET}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    scope: "lineage-secret-scope",
+                    key: "TEST_SECRET"
+                })
+            }
+        );
+
+        const result = await response.text();
+
+        res.json({
+            success: true,
+            result
+        });
+
+    } catch (err) {
+
+        res.json({
+            success: false,
+            error: err.message
+        });
+
+    }
+
 });
 
-const port = process.env.DATABRICKS_APP_PORT || 8000;
-
-app.listen(port, () => {
-  console.log(`Running on port ${port}`);
-});
+app.listen(process.env.DATABRICKS_APP_PORT || 8000);
