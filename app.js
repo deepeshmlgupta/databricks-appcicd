@@ -40,22 +40,23 @@ app.get("/apitest", async (req, res) => {
             });
         }
 
-        const response = await fetch(
-            `https://${host}/api/2.0/clusters/list`,
-            {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
+        const apiUrl = `${host}/api/2.0/clusters/list`;
+
+        const response = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json"
             }
-        );
+        });
 
         const body = await response.text();
 
         res.json({
             success: true,
+            apiUrl,
             status: response.status,
-            body: body
+            body
         });
 
     } catch (err) {
@@ -63,7 +64,8 @@ app.get("/apitest", async (req, res) => {
         res.json({
             success: false,
             error: err.message,
-            stack: err.stack
+            stack: err.stack,
+            cause: err.cause ? err.cause.message : null
         });
 
     }
