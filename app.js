@@ -108,6 +108,39 @@ app.get("/secret-scope", async (req, res) => {
 
 });
 
+app.get("/list-secrets", async (req, res) => {
+
+    try {
+
+        const host = process.env.DATABRICKS_HOST;
+        const token = process.env.DATABRICKS_PAT;
+
+        const response = await fetch(
+            `${host}/api/2.0/secrets/list?scope=lineage-secret-scope`,
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            }
+        );
+
+        const body = await response.text();
+
+        res.json({
+            status: response.status,
+            body: JSON.parse(body)
+        });
+
+    } catch (err) {
+
+        res.json({
+            error: err.message
+        });
+
+    }
+
+});
+
 const port = process.env.DATABRICKS_APP_PORT || 8000;
 
 app.listen(port, () => {
