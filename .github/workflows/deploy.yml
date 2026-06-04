@@ -32,6 +32,17 @@ jobs:
           echo "DATABRICKS_HOST length: ${#DATABRICKS_HOST}"
           echo "DATABRICKS_PATH length: ${#DATABRICKS_PATH}"
 
+      - name: Show generated values
+        run: |
+          sed -i "s|\${CLIENT_ID}|${CLIENT_ID}|g" app.yaml
+          sed -i "s|\${TEST_SECRET}|${TEST_SECRET}|g" app.yaml
+          sed -i "s|\${DATABRICKS_HOST}|${DATABRICKS_HOST}|g" app.yaml
+          sed -i "s|\${DATABRICKS_PATH}|${DATABRICKS_PATH}|g" app.yaml
+
+      - name: Dispaly
+        run: |
+          cat app.yaml
+          
       - name: Deploy App
         run: |
           databricks apps deploy --auto-approve --force-lock
