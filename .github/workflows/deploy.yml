@@ -1,11 +1,14 @@
 name: Deploy Databricks App
+
 on:
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     env:
+      # Auth for Databricks CLI (Azure Service Principal)
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
       DATABRICKS_AUTH_TYPE: azure-client-secret
       ARM_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
@@ -16,13 +19,13 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Verify Databricks auth
+      - name: Verify Databricks authentication
         run: databricks current-user me
 
-      - name: Push secrets to Databricks Secret Scope
+      - name: Push business secrets to Databricks Secret Scope
         env:
-          APP_CLIENT_ID: ${{ secrets.CLIENT_ID }}
-          APP_TEST_SECRET: ${{ secrets.TEST_SECRET }}
+          APP_CLIENT_ID:       ${{ secrets.CLIENT_ID }}
+          APP_TEST_SECRET:     ${{ secrets.TEST_SECRET }}
           APP_DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           APP_DATABRICKS_PATH: ${{ secrets.DATABRICKS_PATH }}
         run: |
@@ -31,7 +34,7 @@ jobs:
           databricks secrets put-secret lineage-secret-scope DATABRICKS_HOST --string-value "$APP_DATABRICKS_HOST"
           databricks secrets put-secret lineage-secret-scope DATABRICKS_PATH --string-value "$APP_DATABRICKS_PATH"
 
-      - name: Deploy app from Git
+      - name: Deploy app directly from GitHub
         run: |
           databricks apps deploy secret-poc \
             --json '{"git_source": {"branch": "claude"}}'
