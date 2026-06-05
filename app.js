@@ -141,7 +141,7 @@ app.get("/", (req, res) => {
 
 // });
 
-app.get("/list-secrets", async (req, res) => {
+app.get("/secret-test", async (req, res) => {
 
     try {
 
@@ -152,22 +152,30 @@ app.get("/list-secrets", async (req, res) => {
         }
 
         const response = await fetch(
-            `${host}/api/2.0/secrets/list?scope=lineage-secret-scope`,
+            `${host}/api/2.0/secrets/get`,
             {
+                method: "POST",
                 headers: {
-                    Authorization: `Bearer ${process.env.DATABRICKS_PAT}`
-                }
+                    Authorization: `Bearer ${process.env.DATABRICKS_PAT}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    scope: "lineage-secret-scope",
+                    key: "CLIENT_ID"
+                })
             }
         );
 
-        const body = await response.json();
+        const text = await response.text();
 
-        res.json(body);
+        res.json({
+            status: response.status,
+            response: text
+        });
 
     } catch (err) {
 
         res.json({
-            success: false,
             error: err.message
         });
 
