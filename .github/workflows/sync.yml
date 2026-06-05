@@ -1,0 +1,46 @@
+name: Sync Secrets to Databricks Scope
+
+# Run this manually when:
+#   - Rotating a secret
+#   - Adding a new secret
+#   - Onboarding a new environment
+# Does NOT deploy the app.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync-secrets:
+    runs-on: ubuntu-latest
+
+    env:
+      # Auth for Databricks CLI (Azure Service Principal)
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_AUTH_TYPE: azure-client-secret
+      ARM_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
+      ARM_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
+      ARM_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}
+
+    steps:
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Verify Databricks authentication
+        run: databricks current-user me
+
+      - name: Push business secrets to Databricks Secret Scope
+        env:
+          APP_CLIENT_ID:       ${{ secrets.CLIENT_ID }}
+          APP_TEST_SECRET:     ${{ secrets.TEST_SECRET }}
+          APP_DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          APP_DATABRICKS_PATH: ${{ secrets.DATABRICKS_PATH }}
+        run: |
+          databricks secrets put-secret lineage-secret-scope CLIENT_ID       --string-value "$APP_CLIENT_ID"
+          databricks secrets put-secret lineage-secret-scope TEST_SECRET     --string-value "$APP_TEST_SECRET"
+          databricks secrets put-secret lineage-secret-scope DATABRICKS_HOST --string-value "$APP_DATABRICKS_HOST"
+          databricks secrets put-secret lineage-secret-scope DATABRICKS_PATH --string-value "$APP_DATABRICKS_PATH"
+
+      - name: Confirm secrets exist in scope
+        run: |
+          echo "Listing keys in lineage-secret-scope:"
+          databricks secrets list-secrets lineage-secret-scope
