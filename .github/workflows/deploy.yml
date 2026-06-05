@@ -1,48 +1,37 @@
 name: Deploy Databricks App
-
 on:
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     env:
-      CLIENT_ID: ${{ secrets.CLIENT_ID }}
-      TEST_SECRET: ${{ secrets.TEST_SECRET }}
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_PATH: ${{ secrets.DATABRICKS_PATH }}
-
       DATABRICKS_AUTH_TYPE: azure-client-secret
       ARM_CLIENT_ID: ${{ secrets.DATABRICKS_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
       ARM_TENANT_ID: ${{ secrets.DATABRICKS_TENANT_ID }}
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
-      - name: Show generated values
-        run: |
-          echo "CLIENT_ID length: ${#CLIENT_ID}"
-          echo "TEST_SECRET length: ${#TEST_SECRET}"
-          echo "DATABRICKS_HOST length: ${#DATABRICKS_HOST}"
-          echo "DATABRICKS_PATH length: ${#DATABRICKS_PATH}"
+      - name: Verify Databricks auth
+        run: databricks current-user me
 
-      - name: Show generated values
+      - name: Push secrets to Databricks Secret Scope
+        env:
+          APP_CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          APP_TEST_SECRET: ${{ secrets.TEST_SECRET }}
+          APP_DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          APP_DATABRICKS_PATH: ${{ secrets.DATABRICKS_PATH }}
         run: |
-          sed -i "s|\${CLIENT_ID}|${CLIENT_ID}|g" app.yaml
-          sed -i "s|\${TEST_SECRET}|${TEST_SECRET}|g" app.yaml
-          sed -i "s|\${DATABRICKS_HOST}|${DATABRICKS_HOST}|g" app.yaml
-          sed -i "s|\${DATABRICKS_PATH}|${DATABRICKS_PATH}|g" app.yaml
+          databricks secrets put-secret lineage-secret-scope CLIENT_ID       --string-value "$APP_CLIENT_ID"
+          databricks secrets put-secret lineage-secret-scope TEST_SECRET     --string-value "$APP_TEST_SECRET"
+          databricks secrets put-secret lineage-secret-scope DATABRICKS_HOST --string-value "$APP_DATABRICKS_HOST"
+          databricks secrets put-secret lineage-secret-scope DATABRICKS_PATH --string-value "$APP_DATABRICKS_PATH"
 
-      - name: Dispaly
+      - name: Deploy app from Git
         run: |
-          cat app.yaml
-          
-      - name: Deploy App
-        run: |
-          databricks apps deploy --auto-approve --force-lock
+          databricks apps deploy secret-poc \
+            --json '{"git_source": {"branch": "claude"}}'
