@@ -5,4 +5,4 @@ env:
     value: "lineage-secret-scope"
     
   - name: DATABRICKS_PAT
-    value: "dapi91c7e7ca702f7358c908deb98f6656ac"
+    value: "dapie30a0b5dacc590e6c89e319e14bf4c3c"
