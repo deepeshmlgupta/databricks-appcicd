@@ -72,68 +72,102 @@ app.get("/", (req, res) => {
 
 // });
 
-app.get("/secret-scope", async (req, res) => {
+// app.get("/secret-scope", async (req, res) => {
 
-    try {
+//     try {
 
-        const host = process.env.DATABRICKS_HOST;
-        const token = process.env.DATABRICKS_PAT;
+//         const host = process.env.DATABRICKS_HOST;
+//         const token = process.env.DATABRICKS_PAT;
 
-        const response = await fetch(
-            `${host}/api/2.0/secrets/scopes/list`,
-            {
-                method: "GET",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json"
-                }
-            }
-        );
+//         const response = await fetch(
+//             `${host}/api/2.0/secrets/scopes/list`,
+//             {
+//                 method: "GET",
+//                 headers: {
+//                     Authorization: `Bearer ${token}`,
+//                     "Content-Type": "application/json"
+//                 }
+//             }
+//         );
 
-        const body = await response.text();
+//         const body = await response.text();
 
-        res.json({
-            status: response.status,
-            body: JSON.parse(body)
-        });
+//         res.json({
+//             status: response.status,
+//             body: JSON.parse(body)
+//         });
 
-    } catch (err) {
+//     } catch (err) {
 
-        res.json({
-            success: false,
-            error: err.message
-        });
+//         res.json({
+//             success: false,
+//             error: err.message
+//         });
 
-    }
+//     }
 
-});
+// });
+
+// app.get("/list-secrets", async (req, res) => {
+
+//     try {
+
+//         const host = process.env.DATABRICKS_HOST;
+//         const token = process.env.DATABRICKS_PAT;
+
+//         const response = await fetch(
+//             `${host}/api/2.0/secrets/list?scope=lineage-secret-scope`,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${token}`
+//                 }
+//             }
+//         );
+
+//         const body = await response.text();
+
+//         res.json({
+//             status: response.status,
+//             body: JSON.parse(body)
+//         });
+
+//     } catch (err) {
+
+//         res.json({
+//             error: err.message
+//         });
+
+//     }
+
+// });
 
 app.get("/list-secrets", async (req, res) => {
 
     try {
 
-        const host = process.env.DATABRICKS_HOST;
-        const token = process.env.DATABRICKS_PAT;
+        let host = process.env.DATABRICKS_HOST;
+
+        if (!host.startsWith("http")) {
+            host = `https://${host}`;
+        }
 
         const response = await fetch(
             `${host}/api/2.0/secrets/list?scope=lineage-secret-scope`,
             {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${process.env.DATABRICKS_PAT}`
                 }
             }
         );
 
-        const body = await response.text();
+        const body = await response.json();
 
-        res.json({
-            status: response.status,
-            body: JSON.parse(body)
-        });
+        res.json(body);
 
     } catch (err) {
 
         res.json({
+            success: false,
             error: err.message
         });
 
