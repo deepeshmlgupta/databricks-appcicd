@@ -175,6 +175,46 @@ app.get("/list-secrets", async (req, res) => {
 
 });
 
+app.get("/get-secret", async (req, res) => {
+
+    try {
+
+        let host = process.env.DATABRICKS_HOST;
+
+        if (!host.startsWith("http")) {
+            host = `https://${host}`;
+        }
+
+        const response = await fetch(
+            `${host}/api/2.0/secrets/get`,
+            {
+                method: "POST",
+                headers: {
+                    Authorization:
+                        `Bearer ${process.env.DATABRICKS_PAT}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    scope: "lineage-secret-scope",
+                    key: "CLIENT_ID"
+                })
+            }
+        );
+
+        const text = await response.text();
+
+        res.send(text);
+
+    } catch (err) {
+
+        res.json({
+            error: err.message
+        });
+
+    }
+
+});
+
 const port = process.env.DATABRICKS_APP_PORT || 8000;
 
 app.listen(port, () => {
