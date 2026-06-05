@@ -1,16 +1,14 @@
 command: ["npm", "start"]
-port: 3000
-timeout: 300
-
+ 
 env:
   - name: CLIENT_ID
-    value: "${CLIENT_ID}"
-
+    valueFrom: client-id-secret
+ 
   - name: TEST_SECRET
-    value: "${TEST_SECRET}"
-
+    valueFrom: test-secret-secret
+ 
   - name: DATABRICKS_HOST
-    value: "${DATABRICKS_HOST}"
-
+    valueFrom: databricks-host-secret
+ 
   - name: DATABRICKS_PATH
-    value: "${DATABRICKS_PATH}"
+    valueFrom: databricks-path-secret
