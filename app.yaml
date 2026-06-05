@@ -1,10 +1,14 @@
 command: ["npm", "start"]
+ 
 env:
   - name: CLIENT_ID
     valueFrom: client-id-secret
+ 
   - name: TEST_SECRET
     valueFrom: test-secret-secret
+ 
   - name: DATABRICKS_HOST
     valueFrom: databricks-host-secret
+ 
   - name: DATABRICKS_PATH
     valueFrom: databricks-path-secret
