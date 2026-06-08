@@ -32,11 +32,13 @@ jobs:
         env:
           APP_CLIENT_ID:       ${{ secrets.CLIENT_ID }}
           APP_TEST_SECRET:     ${{ secrets.TEST_SECRET }}
+          APP_BACKEND_SECRET:     ${{ secrets.BACKEND_SECRET }}
           APP_DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           APP_DATABRICKS_PATH: ${{ secrets.DATABRICKS_PATH }}
         run: |
           databricks secrets put-secret lineage-secret-scope CLIENT_ID       --string-value "$APP_CLIENT_ID"
           databricks secrets put-secret lineage-secret-scope TEST_SECRET     --string-value "$APP_TEST_SECRET"
+          databricks secrets put-secret lineage-secret-scope BACKEND_SECRET     --string-value "$APP_BACKEND_SECRET"
           databricks secrets put-secret lineage-secret-scope DATABRICKS_HOST --string-value "$APP_DATABRICKS_HOST"
           databricks secrets put-secret lineage-secret-scope DATABRICKS_PATH --string-value "$APP_DATABRICKS_PATH"
 
